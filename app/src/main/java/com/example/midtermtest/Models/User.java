@@ -14,7 +14,6 @@ public class User {
     private String name;
     private String username;
     private String password;
-    @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
     private String created_at;
 
     public User(String name, String username, String password) {

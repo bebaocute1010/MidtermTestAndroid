@@ -11,7 +11,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.midtermtest.Common.ToastHelper;
 import com.example.midtermtest.Database.AppDatabase;
 import com.example.midtermtest.Models.User;
 

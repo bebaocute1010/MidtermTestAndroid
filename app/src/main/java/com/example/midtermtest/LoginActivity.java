@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,6 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.midtermtest.Database.AppDatabase;
+import com.example.midtermtest.Models.Product;
+import com.example.midtermtest.Models.User;
+import com.example.midtermtest.Seeders.ProductSeeder;
 
 public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
@@ -24,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initialization();
+//        seeder();
         linkToRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -35,18 +40,20 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    if (AppDatabase.getInstance(getContext()).userDao().attemptCredential(
+                    User user = AppDatabase.getInstance(getContext()).userDao().attemptCredential(
                             inputUsername.getText().toString().trim(),
                             inputPassword.getText().toString().trim()
-                        ) != null
-                    ) {
+                    );
+                    if (user != null) {
                         Toast.makeText(getContext(), "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra("user_id", user.getId());
+                        startActivity(intent);
                     } else {
                         Toast.makeText(getContext(), "Tên đăng nhập hoặc mật khẩu không chính xác", Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
-                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("Login", e.getMessage());
                 }
             }
         });
@@ -61,5 +68,19 @@ public class LoginActivity extends AppCompatActivity {
 
     private Context getContext() {
         return LoginActivity.this.getApplicationContext();
+    }
+
+    public void seeder() {
+        try {
+            Log.i("Seeder", "Started");
+            for (Product product: ProductSeeder.products) {
+                if (AppDatabase.getInstance(getContext()).productDao().isExists(product.getName(), product.getImage(), product.getPrice()) == null) {
+                    AppDatabase.getInstance(getContext()).productDao().insert(product);
+                }
+            }
+            Log.i("Seeder", "Finished");
+        } catch (Exception e) {
+            Log.e("Seeder", e.getMessage());
+        }
     }
 }
